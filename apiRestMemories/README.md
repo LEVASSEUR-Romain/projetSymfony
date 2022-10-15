@@ -1,10 +1,12 @@
 ## Ma premier api REST en symfony
 
+Memo : php bin\console doctrine:database:create
+
 ## Login
 
 # Creer un compte
 
-Le pseudo => taille minimum 5 caractéres et maximum 25 le pseudo est unique
+Le pseudo => taille minimum 5 caractéres et maximum 25 le pseudo est unique sans caractére spéciaux
 Le mdp => taille minimum 4 caractéres et maximum 25 le mail est unique
 Mail => valide
 url : site/createlogin method POST

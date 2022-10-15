@@ -30,6 +30,7 @@ class Login
         minMessage: 'La taille du pseudo doit etre supérieur à {{ limit }}',
         maxMessage: 'La taille du pseudo doit etre inférieur à {{ limit }}',
     )]
+    #[Assert\Regex('/^[a-zA-Z0-9]+$/', message: "le pseudo contient de caractére spéciaux")]
     private ?string $pseudo = null;
 
     #[ORM\Column(length: 255)]
