@@ -2,15 +2,17 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
 use App\Repository\LoginRepository;
 use Symfony\Component\Validator\Constraints as Assert;
-use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: LoginRepository::class)]
 #[UniqueEntity('mail', message: "cette email a deja été enregistré")]
 #[UniqueEntity('pseudo', message: "ce pseudo est deja utilisé")]
-class Login
+class Login implements UserInterface, PasswordAuthenticatedUserInterface
 {
     // variable constraint
     const MAX_LENGTH_PSEUDO = 25;
@@ -33,14 +35,20 @@ class Login
     #[Assert\Regex('/^[a-zA-Z0-9]+$/', message: "le pseudo contient de caractére spéciaux")]
     private ?string $pseudo = null;
 
-    #[ORM\Column(length: 255)]
+
+
     #[Assert\NotBlank]
     #[Assert\Length(
         min: self::MIN_LENGTH_PASS,
-        max: self::MAX_LENGTH_PASS,
         minMessage: 'La taille du mot de passe doit etre supérieur à {{ limit }}',
         maxMessage: 'La taille du mot de passe doit etre inférieur à {{ limit }}',
     )]
+    private ?string $plainPassword = null;
+
+    /**
+     * @var string The hashed password
+     */
+    #[ORM\Column(length: 255)]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
@@ -49,6 +57,19 @@ class Login
         message: "le mail : {{ value }} n'est pas un mail valide.",
     )]
     private ?string $mail = null;
+
+    #[ORM\Column]
+    private array $roles = [];
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->pseudo;
+    }
 
     public function getId(): ?int
     {
@@ -67,6 +88,27 @@ class Login
         return $this;
     }
 
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -89,5 +131,23 @@ class Login
         $this->mail = $mail;
 
         return $this;
+    }
+
+    public function setPlainPassword(string $plainPassword)
+    {
+        $this->plainPassword = $plainPassword;
+        return $this;
+    }
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
     }
 }
