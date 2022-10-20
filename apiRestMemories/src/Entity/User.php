@@ -3,16 +3,16 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\LoginRepository;
+use App\Repository\UserRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
-#[ORM\Entity(repositoryClass: LoginRepository::class)]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity('mail', message: "cette email a deja été enregistré")]
 #[UniqueEntity('pseudo', message: "ce pseudo est deja utilisé")]
-class Login implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     // variable constraint
     const MAX_LENGTH_PSEUDO = 25;
@@ -51,11 +51,7 @@ class Login implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    #[Assert\Email(
-        message: "le mail : {{ value }} n'est pas un mail valide.",
-    )]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $mail = null;
 
     #[ORM\Column]
@@ -126,7 +122,7 @@ class Login implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->mail;
     }
 
-    public function setMail(string $mail): self
+    public function setMail(string|null $mail): self
     {
         $this->mail = $mail;
 

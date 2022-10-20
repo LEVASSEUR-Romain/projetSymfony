@@ -8,7 +8,7 @@ Memo : php bin\console doctrine:database:create
 
 Le pseudo => taille minimum 5 caractéres et maximum 25 le pseudo est unique sans caractére spéciaux
 Le mdp => taille minimum 4 caractéres et maximum 25 le mail est unique
-Mail => valide
+Mail => valide (optionnel)
 url : site/createlogin method POST
 POST => pseudo : string, mdp : string mail: string
 return => un json {

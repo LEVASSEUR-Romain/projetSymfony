@@ -24,7 +24,7 @@ class CreateLoginController extends AbstractController
         $this->validator = $validator;
         $this->passwordHasher = $passwordHasher;
     }
-    #[Route('/createlogin', name: 'app_login_create_login', methods: ['GET', 'POST'])]
+    #[Route('/createlogin', name: 'createlogin', methods: ['GET', 'POST'])]
     public function index(Request $request): Response
     {
         $this->request = $request;
@@ -41,7 +41,7 @@ class CreateLoginController extends AbstractController
     public function tchekError(): string
     {
         $postErrorService = new PostServiceError();
-        $postError = $postErrorService->postErrorToString($this->request, ["pseudo", "mail", "mdp"]);
+        $postError = $postErrorService->postErrorToString($this->request, ["pseudo", "mdp"]);
         if ($postError !== "") {
             return $postError;
         }
