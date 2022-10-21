@@ -49,3 +49,5 @@ return => error ou true
 
 url : site/getList/{nameList} method GET
 return => list de cards ou false;
+
+## Card memorie

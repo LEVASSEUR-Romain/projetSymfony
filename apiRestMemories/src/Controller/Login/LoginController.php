@@ -39,18 +39,19 @@ class LoginController extends AbstractController
 
     public function tchekError()
     {
-        $postService = new PostServiceError;
-        $postError = $postService->postErrorToString($this->request, ['pseudo', "mdp"]);
-        if ($postError !== "") {
-            return $postError;
-        }
+        if ($this->getUser() === null) {
+            $postService = new PostServiceError;
+            $postError = $postService->postErrorToString($this->request, ['pseudo', "mdp"]);
+            if ($postError !== "") {
+                return $postError;
+            }
 
-        $serviceLogin = new LoginService;
-        $errorLogin = $serviceLogin->loginIn($this->request, $this->doctrine, $this->passwordHasher);
-        if ($errorLogin !== true) {
-            return $errorLogin;
+            $serviceLogin = new LoginService;
+            $errorLogin = $serviceLogin->loginIn($this->request, $this->doctrine, $this->passwordHasher);
+            if ($errorLogin !== true) {
+                return $errorLogin;
+            }
         }
-
         return "";
     }
     #[Route(path: '/logout', name: 'app_logout')]
