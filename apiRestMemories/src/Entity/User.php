@@ -36,7 +36,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $pseudo = null;
 
 
-
     #[Assert\NotBlank]
     #[Assert\Length(
         min: self::MIN_LENGTH_PASS,
