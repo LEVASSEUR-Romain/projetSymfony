@@ -15,7 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class LoginService
 {
-    public function pushLogin(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher): string|ConstraintViolationListInterface
+    public function pushLogin(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher): array|ConstraintViolationListInterface
     {
         $entityLogin = new User();
         $entityLogin->setMail($request->get('mail'))
@@ -34,10 +34,10 @@ class LoginService
         $entityManager = $doctrine->getManager();
         $entityManager->persist($entityLogin);
         $entityManager->flush();
-        return "";
+        return [];
     }
 
-    public function loginIn(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $passwordHasher): string|bool
+    public function loginIn(Request $request, ManagerRegistry $doctrine, UserPasswordHasherInterface $passwordHasher): array|bool
     {
         $error = [];
         $error["error"] = true;
@@ -45,7 +45,7 @@ class LoginService
         $isPseudo =  $repo->findOneBy(["pseudo" => $request->get('pseudo')]);
         if ($isPseudo === NULL) {
             $error["pseudo"] = "le pseudo n'est pas enregistré";
-            return json_encode($error);
+            return $error;
         }
         $isValidPassword =  $passwordHasher->isPasswordValid(
             $isPseudo,
@@ -53,7 +53,7 @@ class LoginService
         );
         if (!$isValidPassword) {
             $error["mdp"] = "le mot de passe est incorect";
-            return json_encode($error);
+            return $error;
         }
         return true;
     }

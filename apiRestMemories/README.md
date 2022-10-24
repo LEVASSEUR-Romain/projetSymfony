@@ -16,7 +16,6 @@ error : true / false,
 (si error == true =>)
 pseudo : "type error"
 mdp : "type error"
-mail : "type error"
 }
 
 # Se loger
@@ -25,12 +24,16 @@ url : site/login method POST
 POST => pseudo : string mdp : string
 return => si pseudo incorrect ou mdp incorect ou ...
 
+# se deconnecter
+
+ulr : site/logout method GET
+
 ## Liste de MEMORIES
 
 # add List
 
 url : site/addlist method POST
-POST => listename : string
+POST => nom : string , description : string| null
 return => error ou true
 
 # remove List

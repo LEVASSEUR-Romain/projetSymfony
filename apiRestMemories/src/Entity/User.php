@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -40,7 +43,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(
         min: self::MIN_LENGTH_PASS,
         minMessage: 'La taille du mot de passe doit etre supérieur à {{ limit }}',
-        maxMessage: 'La taille du mot de passe doit etre inférieur à {{ limit }}',
     )]
     private ?string $plainPassword = null;
 
@@ -55,6 +57,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private array $roles = [];
+
+    #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: Cards::class)]
+    private Collection $cards;
+
+    #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: ListMemory::class)]
+    private Collection $listMemories;
+
+    public function __construct()
+    {
+        $this->cards = new ArrayCollection();
+        $this->listMemories = new ArrayCollection();
+    }
+
 
     /**
      * A visual identifier that represents this user.
@@ -90,7 +105,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'USER';
+        $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
@@ -144,5 +159,65 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Cards>
+     */
+    public function getCards(): Collection
+    {
+        return $this->cards;
+    }
+
+    public function addCard(Cards $card): self
+    {
+        if (!$this->cards->contains($card)) {
+            $this->cards->add($card);
+            $card->setUserId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCard(Cards $card): self
+    {
+        if ($this->cards->removeElement($card)) {
+            // set the owning side to null (unless already changed)
+            if ($card->getUserId() === $this) {
+                $card->setUserId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ListMemory>
+     */
+    public function getListMemories(): Collection
+    {
+        return $this->listMemories;
+    }
+
+    public function addListMemory(ListMemory $listMemory): self
+    {
+        if (!$this->listMemories->contains($listMemory)) {
+            $this->listMemories->add($listMemory);
+            $listMemory->setUserId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeListMemory(ListMemory $listMemory): self
+    {
+        if ($this->listMemories->removeElement($listMemory)) {
+            // set the owning side to null (unless already changed)
+            if ($listMemory->getUserId() === $this) {
+                $listMemory->setUserId(null);
+            }
+        }
+
+        return $this;
     }
 }

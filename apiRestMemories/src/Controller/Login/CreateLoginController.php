@@ -7,9 +7,9 @@ namespace App\Controller\Login;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Controller\RequestBase\LoginService;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\ServiceError\PostServiceError;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -25,24 +25,21 @@ class CreateLoginController extends AbstractController
         $this->passwordHasher = $passwordHasher;
     }
     #[Route('/createlogin', name: 'createlogin', methods: ['GET', 'POST'])]
-    public function index(Request $request): Response
+    public function index(Request $request): JsonResponse
     {
         $this->request = $request;
         $error = $this->tchekError();
-        if ($error !== "") {
-            return $this->render('api/principal.html.twig', [
-                'body' => $error,
-            ]);
+        if (count($error) !== 0) {
+            return new JsonResponse($error);
         }
-
         return $this->noError();
     }
 
-    public function tchekError(): string
+    public function tchekError(): array
     {
         $postErrorService = new PostServiceError();
-        $postError = $postErrorService->postErrorToString($this->request, ["pseudo", "mdp"]);
-        if ($postError !== "") {
+        $postError = $postErrorService->postError($this->request, ["pseudo", "mdp"]);
+        if (count($postError) !== 0) {
             return $postError;
         }
 
@@ -54,16 +51,13 @@ class CreateLoginController extends AbstractController
             for ($i = 0; $i < count($errorsValidation); $i++) {
                 $arrayErrors[$errorsValidation[$i]->getpropertyPath()] = $errorsValidation[$i]->getMessage();
             }
-            $arrayError = json_encode($arrayErrors);
-            return $arrayError;
+            return $arrayErrors;
         }
-        return "";
+        return [];
     }
 
-    public function noError(): Response
+    public function noError(): JsonResponse
     {
-        return $this->render('api/principal.html.twig', [
-            'body' => "ok",
-        ]);
+        return new JsonResponse(["statut" => "ok"]);
     }
 }
