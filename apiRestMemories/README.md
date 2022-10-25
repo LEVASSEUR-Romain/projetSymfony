@@ -34,27 +34,56 @@ ulr : site/logout method GET
 
 url : site/list-memory method POST
 POST => nom : string , description : string| null
-return => error ou true
+return => error ou statut : ok
 
 # remove List
 
 url : site/list-memory/{id} method DELETE
 DELETE => listename : string
-return => error ou true
+return => error ou statut : ok
 
 # update List
 
-url : site/updatelist method PUT
+url : site/list-memory/{id} method PUT
 PUT : listename : string , addCard : json
-return => error ou true
+return => error ou statut : ok
 
 # read List
 
-url : site/getList/{id} method GET
-return => list de cards ou false;
+url : site/list-memory/{id} method GET
+return => list de cards ou error;
 
 # read All List
 
-url : site/
+url : site/list-memory/all method GET
+return => list de cards du user connecter ou error;
 
 ## Card memorie
+
+# add Card
+
+url : site/card method POST
+POST => devant : string , derrière : string , devant_perso : string | null , derriére_perso: string | null
+return => error ou statut : ok
+
+# remove Card
+
+url : site/card/{id} method DELETE
+DELETE => listename : string
+return => error ou statut : ok
+
+# update Card
+
+url : site/card/{id} method PUT
+PUT : listename : string , addCard : json
+return => error ou statut : ok
+
+# read Card
+
+url : site/card/{id} method GET
+return => list de cards ou error;
+
+# read All Card
+
+url : site/list-memory/all method GET
+return => list de cards du user connecter ou error;

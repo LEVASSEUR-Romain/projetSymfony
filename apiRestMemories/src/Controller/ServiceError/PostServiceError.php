@@ -19,11 +19,11 @@ class PostServiceError
             $errors = "";
             foreach ($arrayNeed as &$value) {
                 if (empty($request->get($value))) {
-                    $errors .= $value;
+                    $errors .= $value . " ";
                 }
             }
             if ($errors !== "") {
-                $arrayErrors['error'] = "il manque des informations dans le post :" . $errors;
+                $arrayErrors['error'] = "il manque des informations dans le post : " . $errors;
                 return $arrayErrors;
             }
         }

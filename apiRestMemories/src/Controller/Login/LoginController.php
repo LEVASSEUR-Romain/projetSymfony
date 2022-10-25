@@ -37,12 +37,13 @@ class LoginController extends AbstractController
     {
         if ($this->getUser() === null) {
             $postService = new PostServiceError;
-            $postError = $postService->postError($this->request, ['pseudo', "mdp"]);
+            $serviceLogin = new LoginService;
+            $postError = $postService->postError($this->request, $serviceLogin->getArrayObligation());
             if (count($postError) !== 0) {
                 return $postError;
             }
 
-            $serviceLogin = new LoginService;
+
             $errorLogin = $serviceLogin->loginIn($this->request, $this->doctrine, $this->passwordHasher);
             if ($errorLogin !== true) {
                 return $errorLogin;

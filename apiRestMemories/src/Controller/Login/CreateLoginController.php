@@ -38,20 +38,16 @@ class CreateLoginController extends AbstractController
     public function tchekError(): array
     {
         $postErrorService = new PostServiceError();
-        $postError = $postErrorService->postError($this->request, ["pseudo", "mdp"]);
+        $loginService = new LoginService();
+
+        $postError = $postErrorService->postError($this->request, $loginService->getArrayObligation());
         if (count($postError) !== 0) {
             return $postError;
         }
 
-        $loginService = new LoginService();
         $errorsValidation = $loginService->pushLogin($this->request, $this->doctrine, $this->validator, $this->passwordHasher);
-        if ($errorsValidation !== "") {
-            $arrayErrors = [];
-            $arrayErrors['error'] = true;
-            for ($i = 0; $i < count($errorsValidation); $i++) {
-                $arrayErrors[$errorsValidation[$i]->getpropertyPath()] = $errorsValidation[$i]->getMessage();
-            }
-            return $arrayErrors;
+        if (count($errorsValidation) !== 0) {
+            return $errorsValidation;
         }
         return [];
     }

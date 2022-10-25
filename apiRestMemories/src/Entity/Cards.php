@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CardsRepository::class)]
 class Cards
 {
+    const MIN_LENGTH = 1;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -21,10 +22,18 @@ class Cards
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
+    #[Assert\Length(
+        min: self::MIN_LENGTH,
+        minMessage: 'La taille du devant doit etre supérieur à {{ limit }}',
+    )]
     private ?string $front = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
+    #[Assert\Length(
+        min: self::MIN_LENGTH,
+        minMessage: 'La taille du derrière doit etre supérieur à {{ limit }}',
+    )]
     private ?string $back = null;
 
     #[ORM\Column(length: 255, nullable: true)]

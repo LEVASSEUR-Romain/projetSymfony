@@ -14,7 +14,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class CardsController extends AbstractController
 {
-    // TODO
     private $postError;
     private $serviceRequest;
     public function __construct()
@@ -26,52 +25,49 @@ class CardsController extends AbstractController
     #[IsGranted("ROLE_USER")]
     public function addCard(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): JsonResponse
     {
-        $error = $this->postError->postError($request, ['nom']);
+        $error = $this->postError->postError($request, $this->serviceRequest->getArrayObligation());
         if (count($error) !== 0) {
             return new JsonResponse($error);
         }
-        return $this->render('api/principal.html.twig', [
-            'body' => $error,
-        ]);
+
+        $user = $this->getUser();
+        $reponse = $this->serviceRequest->addCard($request, $doctrine, $validator, $user);
+        return new JsonResponse($reponse);
     }
 
-    #[Route('/card/{id}', name: 'delete_card', methods: ['DELETE'])]
+    #[Route('/card/{id}', name: 'delete_card', methods: ['DELETE'], requirements: ["id" => "^[0-9]+$"])]
     #[IsGranted("ROLE_USER")]
-    public function deleteCard(): JsonResponse
+    public function deleteCard(ManagerRegistry $doctrine, int $id): JsonResponse
     {
-        $error = "";
-        return $this->render('api/principal.html.twig', [
-            'body' => $error,
-        ]);
+        $user = $this->getUser();
+        $reponse = $this->serviceRequest->removeCard($doctrine, $user, $id);
+        return new JsonResponse($reponse);
     }
 
-    #[Route('/card/{id}', name: 'update_card', methods: ['PUT'])]
+    #[Route('/card/{id}', name: 'update_card', methods: ['PUT'], requirements: ["id" => "^[0-9]+$"])]
     #[IsGranted("ROLE_USER")]
-    public function updateCard(): JsonResponse
+    public function updateCard(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator, int $id): JsonResponse
     {
-        $error = "";
-        return $this->render('api/principal.html.twig', [
-            'body' => $error,
-        ]);
+        $user = $this->getUser();
+        $response = $this->serviceRequest->updateCard($request, $doctrine, $user, $validator, $id);
+        return new JsonResponse($response);
     }
 
-    #[Route('/card/{id}', name: 'read_card', methods: ['GET'])]
+    #[Route('/card/{id}', name: 'read_card', methods: ['GET'], requirements: ["id" => "^[0-9]+$"])]
     #[IsGranted("ROLE_USER")]
-    public function readCard(): JsonResponse
+    public function readCard(ManagerRegistry $doctrine, int $id): JsonResponse
     {
-        $error = "";
-        return $this->render('api/principal.html.twig', [
-            'body' => $error,
-        ]);
+        $response = $this->serviceRequest->getCard($doctrine, $id);
+        return new JsonResponse($response);
     }
 
     #[Route('/card/all', name: 'read_card_all', methods: ['GET'])]
     #[IsGranted("ROLE_USER")]
-    public function readAllCard(): JsonResponse
+    public function readAllCard(ManagerRegistry $doctrine): JsonResponse
     {
-        $error = "";
-        return $this->render('api/principal.html.twig', [
-            'body' => $error,
-        ]);
+
+        $user = $this->getUser();
+        $response = $this->serviceRequest->getAllCard($doctrine, $user);
+        return new JsonResponse($response);
     }
 }

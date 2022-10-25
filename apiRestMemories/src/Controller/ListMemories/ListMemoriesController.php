@@ -28,11 +28,10 @@ class ListMemoriesController extends AbstractController
     #[IsGranted("ROLE_USER")]
     public function addList(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): JsonResponse
     {
-        $error = $this->postError->postError($request, ['nom']);
+        $error = $this->postError->postError($request, $this->serviceRequest->getArrayObligation());
         if (count($error) !== 0) {
             return new JsonResponse($error);
         }
-        // add to list
         $user = $this->getUser();
         $reponse = $this->serviceRequest->addList($request, $doctrine, $validator, $user);
         return new JsonResponse($reponse);
@@ -42,11 +41,6 @@ class ListMemoriesController extends AbstractController
     #[IsGranted("ROLE_USER")]
     public function removeList(ManagerRegistry $doctrine, int $id): JsonResponse
     {
-        /*       if ($id === null || preg_match("/^[0-9]+$/", $id)) {
-            return new JsonResponse(['error' => "Vous n'avez pas indiquer l'id"], 400);
-        }
-        */
-        /** @var User $user */
         $user = $this->getUser();
         $reponse = $this->serviceRequest->removeList($doctrine, $user, $id);
         return new JsonResponse($reponse);
@@ -54,10 +48,10 @@ class ListMemoriesController extends AbstractController
 
     #[Route('/list-memory/{id}', name: 'update_memories', methods: ['PUT'], requirements: ["id" => "^[0-9]+$"])]
     #[IsGranted("ROLE_USER")]
-    public function updateList(Request $request, ManagerRegistry $doctrine, int $id): JsonResponse
+    public function updateList(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator, int $id): JsonResponse
     {
         $user = $this->getUser();
-        $response = $this->serviceRequest->updateList($request, $doctrine, $user, $id);
+        $response = $this->serviceRequest->updateList($request, $doctrine, $user, $validator, $id);
         return new JsonResponse($response);
     }
 
