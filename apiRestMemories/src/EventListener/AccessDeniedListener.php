@@ -27,8 +27,7 @@ class AccessDeniedListener implements EventSubscriberInterface
         }
 
         $response = new JsonResponse([
-            'error' => true,
-            "user" => "personne n'est connecté",
+            'error' => "personne n'est connecté"
         ], 401);
         // optionally set the custom response
         $event->setResponse($response);

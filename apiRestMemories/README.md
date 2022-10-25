@@ -32,13 +32,13 @@ ulr : site/logout method GET
 
 # add List
 
-url : site/addlist method POST
+url : site/list-memory method POST
 POST => nom : string , description : string| null
 return => error ou true
 
 # remove List
 
-url : site/removelist method DELETE
+url : site/list-memory/{id} method DELETE
 DELETE => listename : string
 return => error ou true
 
@@ -50,7 +50,11 @@ return => error ou true
 
 # read List
 
-url : site/getList/{nameList} method GET
+url : site/getList/{id} method GET
 return => list de cards ou false;
+
+# read All List
+
+url : site/
 
 ## Card memorie

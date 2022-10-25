@@ -2,6 +2,7 @@
 
 namespace App\Controller\RequestBase;
 
+use App\Controller\Services\methodDataBase;
 use App\Entity\ListMemory;
 use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
@@ -23,9 +24,7 @@ class ListMemoryService
         if (count($valid) > 0) {
             return $valid;
         }
-        $entityManager = $doctrine->getManager();
-        $entityManager->persist($listMemory);
-        $entityManager->flush();
+        methodDataBase::push($doctrine, $listMemory);
         return ["statut" => "ok"];
     }
 
@@ -34,26 +33,54 @@ class ListMemoryService
         $repositoryListMemory = $doctrine->getRepository(ListMemory::class);
         $rqtMemory = $repositoryListMemory->findOneBy(['id' => $id, "user_id" => $user->getId()]);
         if ($rqtMemory === null) {
-            return ['error' => true, "message" => "l'id de la liste n'appartient pas au user"];
+            return ['error' => "l'id de la liste n'appartient pas au user"];
         }
-        // user connecter la list lui appartient
-        /*         $repositoryListMemory = $doctrine->getRepository(ListMemory::class);
-        $repositoryUser = $doctrine->getRepository(User::class);
-        $rqtMemory = $repositoryListMemory->findOneBy(['id' => $request->get('id')]);
-        if ($rqtMemory === null) {
-            return ['error' => true, "message" => "id non trouvé"];
-        }
-        $rqtUser =  $repositoryUser->findOneBy(['id' => $rqtMemory->getUserId()]);
-        if ($rqtUser === null) {
-            return ['error' => true, "message" => "le user n'existe pas"];
-        }
-        if ($rqtUser->getPseudo() !== $user->getPseudo()) {
-            return ['error' => true, "message" => "Cette liste n'appartient pas a l'utilisateur connected"];
-        } */
-        // delete
-        $entityManager = $doctrine->getManager();
-        $entityManager->remove($rqtMemory);
-        $entityManager->flush();
+        methodDataBase::delete($doctrine, $rqtMemory);
         return ["statut" => "ok"];
+    }
+
+    public function updateList(Request $request, ManagerRegistry $doctrine, User $user, int $id): array
+    {
+        $repositoryListMemory = $doctrine->getRepository(ListMemory::class);
+        $rqtMemory = $repositoryListMemory->findOneBy(['id' => $id, "user_id" => $user->getId()]);
+        if ($rqtMemory === null) {
+            return ['error' => "l'id de la liste n'appartient pas au user"];
+        }
+        $rqt = json_decode($request->getContent());
+        if (!isset($rqt)) {
+            return ["erreur" => "le json envoyer n'est pas dans le bon format"];
+        }
+        if (!empty($rqt->nom)) {
+            $rqtMemory->setName($rqt->nom);
+        }
+        if (!empty($rqt->description)) {
+            $rqtMemory->setDescription($rqt->description);
+        }
+        methodDataBase::push($doctrine, $rqtMemory);
+        return ["statut" => "ok"];
+    }
+
+    public function getList(ManagerRegistry $doctrine, $id): array
+    {
+        $repositoryListMemory = $doctrine->getRepository(ListMemory::class);
+        $rqtMemory = $repositoryListMemory->findOneBy(['id' => $id]);
+        if (!isset($rqtMemory)) {
+            return ['error' => "l'id correspondant n'existe pas"];
+        }
+        return ["name" => $rqtMemory->getName(), "description" => $rqtMemory->getDescription()];
+    }
+
+    public function getAllList(ManagerRegistry $doctrine, User $user): array
+    {
+        $repositoryListMemory = $doctrine->getRepository(ListMemory::class);
+        $rqtMemory = $repositoryListMemory->findAll(["user_id" => $user->getId()]);
+        if (!isset($rqtMemory)) {
+            return ['error' => "l'utilisateur n'a pas de liste"];
+        }
+        $return = [];
+        foreach ($rqtMemory as &$value) {
+            $return[] = ["nom" => $value->getName(), "description" => $value->getDescription()];
+        }
+        return $return;
     }
 }

@@ -5,7 +5,6 @@ namespace App\Controller\ListMemories;
 use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\RequestBase\ListMemoryService;
 use App\Controller\ServiceError\PostServiceError;
@@ -39,9 +38,9 @@ class ListMemoriesController extends AbstractController
         return new JsonResponse($reponse);
     }
 
-    #[Route('/list-memory/{id}', name: 'remove_memories', methods: ['DELETE'], requirements: ["id" => "^[0-9]+$"])]
+    #[Route('/list-memory/{id}', name: 'delete_memories', methods: ['DELETE'], requirements: ["id" => "^[0-9]+$"])]
     #[IsGranted("ROLE_USER")]
-    public function removeList(Request $request, ManagerRegistry $doctrine, int $id): JsonResponse
+    public function removeList(ManagerRegistry $doctrine, int $id): JsonResponse
     {
         /*       if ($id === null || preg_match("/^[0-9]+$/", $id)) {
             return new JsonResponse(['error' => "Vous n'avez pas indiquer l'id"], 400);
@@ -55,21 +54,26 @@ class ListMemoriesController extends AbstractController
 
     #[Route('/list-memory/{id}', name: 'update_memories', methods: ['PUT'], requirements: ["id" => "^[0-9]+$"])]
     #[IsGranted("ROLE_USER")]
-    public function updateList(): Response
+    public function updateList(Request $request, ManagerRegistry $doctrine, int $id): JsonResponse
     {
-        $error = "";
-        return $this->render('api/principal.html.twig', [
-            'body' => $error,
-        ]);
+        $user = $this->getUser();
+        $response = $this->serviceRequest->updateList($request, $doctrine, $user, $id);
+        return new JsonResponse($response);
     }
 
-    #[Route('/list-memory/{id}', name: 'list_memories', methods: ['GET'], requirements: ["id" => "^[0-9]+$"])]
-    #[IsGranted("ROLE_USER")]
-    public function getList(): Response
+    #[Route('/list-memory/{id}', name: 'read_memories', methods: ['GET'], requirements: ["id" => "^[0-9]+$"])]
+    public function getList(ManagerRegistry $doctrine, int $id): JsonResponse
     {
-        $error = "";
-        return $this->render('api/principal.html.twig', [
-            'body' => $error,
-        ]);
+        $response = $this->serviceRequest->getList($doctrine, $id);
+        return new JsonResponse($response);
+    }
+
+    #[Route('/list-memory/all', name: 'read_memories_all', methods: ['GET'], requirements: ["id" => "^[0-9]+$"])]
+    #[IsGranted("ROLE_USER")]
+    public function getAllList(ManagerRegistry $doctrine): JsonResponse
+    {
+        $user = $this->getUser();
+        $response = $this->serviceRequest->getAllList($doctrine, $user);
+        return new JsonResponse($response);
     }
 }

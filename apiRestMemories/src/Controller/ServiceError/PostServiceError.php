@@ -13,8 +13,7 @@ class PostServiceError
     {
         if ($request->getMethod() !== 'POST') {
             $arrayErrors = [];
-            $arrayErrors['error'] = true;
-            $arrayErrors['POST'] = "aucune information envoyé";
+            $arrayErrors['error'] = "aucune information envoyé";
             return $arrayErrors;
         } else {
             $errors = "";
@@ -24,8 +23,7 @@ class PostServiceError
                 }
             }
             if ($errors !== "") {
-                $arrayErrors['error'] = true;
-                $arrayErrors['POST'] = "il manque des informations dans le post :" . $errors;
+                $arrayErrors['error'] = "il manque des informations dans le post :" . $errors;
                 return $arrayErrors;
             }
         }
