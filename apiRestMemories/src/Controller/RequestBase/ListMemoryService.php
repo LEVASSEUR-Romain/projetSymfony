@@ -38,7 +38,7 @@ class ListMemoryService
             return ConstraintViolationService::toArray($valid);
         }
         methodDataBase::push($doctrine, $listMemory);
-        return ["statut" => "ok"];
+        return ["statut" => "ok", "id" => $listMemory->getId()];
     }
 
     public function removeList(ManagerRegistry $doctrine, User $user, int $id): array
@@ -97,7 +97,11 @@ class ListMemoryService
         }
         $return = [];
         foreach ($rqtMemory as &$value) {
-            $return[] = [self::NAME_TO_SEND => $value->getName(), self::DESCRIPTION_TO_SEND => $value->getDescription()];
+            $return[] = [
+                "id" => $value->getId(),
+                self::NAME_TO_SEND => $value->getName(),
+                self::DESCRIPTION_TO_SEND => $value->getDescription()
+            ];
         }
         return $return;
     }

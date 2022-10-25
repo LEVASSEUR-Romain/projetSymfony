@@ -2,7 +2,7 @@
 
 namespace App\Controller\ListMemories;
 
-use App\Entity\User;
+
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;

@@ -46,7 +46,7 @@ class CardsService
             return ConstraintViolationService::toArray($valid);
         }
         methodDataBase::push($doctrine, $card);
-        return ["statut" => "ok"];
+        return ["statut" => "ok", "id" => $card->getId()];
     }
 
     public function removeCard(ManagerRegistry $doctrine, User $user, int $id): array
@@ -116,6 +116,7 @@ class CardsService
         $return = [];
         foreach ($rqtCard as &$value) {
             $return[] = [
+                "id" => $value->getId(),
                 self::FRONT_TO_SEND => $value->getFront(),
                 self::BACK_TO_SEND => $value->getBack(),
                 self::FRONT_PERSO_TO_SEND => $value->getPersoFront(),
