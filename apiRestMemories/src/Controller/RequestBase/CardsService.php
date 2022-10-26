@@ -2,20 +2,22 @@
 
 namespace App\Controller\RequestBase;
 
-use App\Controller\Services\ConstraintViolationService;
 use App\Entity\User;
 use App\Entity\Cards;
+use App\Entity\ListCard;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Controller\Services\methodDataBase;
 use Symfony\Component\HttpFoundation\Request;
+use App\Controller\Services\ConstraintViolationService;
+use App\Entity\ListMemory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CardsService
 {
-    const FRONT_TO_SEND = "devant";
-    const BACK_TO_SEND = "derrière";
-    const FRONT_PERSO_TO_SEND = "devant_perso";
-    const BACK_PERSO_TO_SEND = "derrière_perso";
+    const FRONT_TO_SEND = "recto";
+    const BACK_TO_SEND = "verso";
+    const FRONT_PERSO_TO_SEND = "recto_perso";
+    const BACK_PERSO_TO_SEND = "verso_perso";
     const ERROR_ID_USER = "l'id de la card n'appartient pas au user ou l'id n'existe plus";
     const ERROR_ID = "l'id correspondant n'existe pas";
     const ERROR_USER = "l'utilisateur n'a pas de liste";
@@ -94,33 +96,55 @@ class CardsService
     public function getCard(ManagerRegistry $doctrine, $id): array
     {
         $repositoryCard = $doctrine->getRepository(Cards::class);
+        $repositoryLink = $doctrine->getRepository(ListCard::class);
         $rqtCard = $repositoryCard->findOneBy(['id' => $id]);
         if (!isset($rqtCard)) {
             return ['error' => self::ERROR_ID];
         }
+        $rqtLink = $repositoryLink->findBy(['card_id' => $id]);
+        $listId = [];
+        $listName = [];
+        foreach ($rqtLink as &$value) {
+            $listId[] = $value->getListId()->getId();
+            $listName[] = $value->getListId()->getName();
+        }
         return [
+            "id" => $rqtCard->getId(),
             self::FRONT_TO_SEND => $rqtCard->getFront(),
             self::BACK_TO_SEND => $rqtCard->getBack(),
             self::FRONT_PERSO_TO_SEND => $rqtCard->getPersoFront(),
             self::BACK_PERSO_TO_SEND => $rqtCard->getPersoBack(),
+            "Liste_Id" => $listId,
+            "Liste_Nom" => $listName,
         ];
     }
 
     public function getAllCard(ManagerRegistry $doctrine, User $user): array
     {
         $repositoryCard = $doctrine->getRepository(Cards::class);
-        $rqtCard = $repositoryCard->findAll(["user_id" => $user->getId()]);
+        $repositoryLink = $doctrine->getRepository(ListCard::class);
+
+        $rqtCard = $repositoryCard->findBy(["user_id" => $user->getId()]);
         if (!isset($rqtCard)) {
             return ['error' => self::ERROR_USER];
         }
         $return = [];
         foreach ($rqtCard as &$value) {
+            $rqtLink = $repositoryLink->findBy(['card_id' => $value->getId()]);
+            $listId = [];
+            $listName = [];
+            foreach ($rqtLink as &$link) {
+                $listId[] = $link->getListId()->getId();
+                $listName[] = $link->getListId()->getName();
+            }
             $return[] = [
                 "id" => $value->getId(),
                 self::FRONT_TO_SEND => $value->getFront(),
                 self::BACK_TO_SEND => $value->getBack(),
                 self::FRONT_PERSO_TO_SEND => $value->getPersoFront(),
                 self::BACK_PERSO_TO_SEND => $value->getPersoBack(),
+                "Liste_Id" => $listId,
+                "Liste_Nom" => $listName,
             ];
         }
         return $return;

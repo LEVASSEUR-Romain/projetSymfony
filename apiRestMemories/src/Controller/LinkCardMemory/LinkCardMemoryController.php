@@ -3,9 +3,7 @@
 namespace App\Controller\LinkCardMemory;
 
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\ServiceError\PostServiceError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Controller\RequestBase\LinkCardMemoryService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -14,22 +12,21 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class LinkCardMemoryController extends AbstractController
 {
     private $serviceRequest;
-    private $postError;
     public function __construct()
     {
-        $this->postError = new PostServiceError;
         $this->serviceRequest = new LinkCardMemoryService;
     }
-    #[Route('/link-list-card', name: 'add_link', methods: ['POST'])]
+    #[Route(
+        '/link-list-card/{idList}/{idCard}',
+        name: 'add_link',
+        methods: ['GET', 'POST'],
+        requirements: ["idList" => "^[0-9]+$", "idCard" => "^[0-9]+$"]
+    )]
     #[IsGranted("ROLE_USER")]
-    public function addToLink(Request $request, ManagerRegistry $doctrine): JsonResponse
+    public function addToLink(ManagerRegistry $doctrine, int $idList, int $idCard): JsonResponse
     {
-        $error = $this->postError->postError($request, $this->serviceRequest->getArrayObligation());
-        if (count($error) !== 0) {
-            return new JsonResponse($error);
-        }
         $user = $this->getUser();
-        $reponse = $this->serviceRequest->addLink($request, $doctrine, $user);
+        $reponse = $this->serviceRequest->addLink($doctrine, $user, $idList, $idCard);
         return new JsonResponse($reponse);
     }
 

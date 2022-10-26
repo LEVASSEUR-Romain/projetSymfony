@@ -2,8 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\ListMemoryRepository;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ListMemoryRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ListMemoryRepository::class)]
@@ -28,6 +31,15 @@ class ListMemory
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
+
+    #[ORM\OneToMany(mappedBy: 'list_id', targetEntity: ListCard::class)]
+    private Collection $listCards;
+
+    public function __construct()
+    {
+        $this->listCards = new ArrayCollection();
+    }
+
 
     public function getId(): ?int
     {
@@ -66,6 +78,36 @@ class ListMemory
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ListCard>
+     */
+    public function getListCards(): Collection
+    {
+        return $this->listCards;
+    }
+
+    public function addListCard(ListCard $listCard): self
+    {
+        if (!$this->listCards->contains($listCard)) {
+            $this->listCards->add($listCard);
+            $listCard->setListId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeListCard(ListCard $listCard): self
+    {
+        if ($this->listCards->removeElement($listCard)) {
+            // set the owning side to null (unless already changed)
+            if ($listCard->getListId() === $this) {
+                $listCard->setListId(null);
+            }
+        }
 
         return $this;
     }

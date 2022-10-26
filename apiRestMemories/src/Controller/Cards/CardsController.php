@@ -61,7 +61,7 @@ class CardsController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/card/all', name: 'read_card_all', methods: ['GET'])]
+    #[Route('/card', name: 'read_card_all', methods: ['GET'])]
     #[IsGranted("ROLE_USER")]
     public function readAllCard(ManagerRegistry $doctrine): JsonResponse
     {

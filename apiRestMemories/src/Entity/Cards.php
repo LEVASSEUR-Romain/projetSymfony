@@ -42,12 +42,14 @@ class Cards
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $perso_back = null;
 
-    #[ORM\OneToMany(mappedBy: 'card_id', targetEntity: CardMemory::class)]
-    private Collection $cardMemories;
+    #[ORM\OneToMany(mappedBy: 'card_id', targetEntity: ListCard::class)]
+    private Collection $listCards;
+
 
     public function __construct()
     {
         $this->cardMemories = new ArrayCollection();
+        $this->listCards = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -116,29 +118,29 @@ class Cards
     }
 
     /**
-     * @return Collection<int, CardMemory>
+     * @return Collection<int, ListCard>
      */
-    public function getCardMemories(): Collection
+    public function getListCards(): Collection
     {
-        return $this->cardMemories;
+        return $this->listCards;
     }
 
-    public function addCardMemory(CardMemory $cardMemory): self
+    public function addListCard(ListCard $listCard): self
     {
-        if (!$this->cardMemories->contains($cardMemory)) {
-            $this->cardMemories->add($cardMemory);
-            $cardMemory->setCardId($this);
+        if (!$this->listCards->contains($listCard)) {
+            $this->listCards->add($listCard);
+            $listCard->setCardId($this);
         }
 
         return $this;
     }
 
-    public function removeCardMemory(CardMemory $cardMemory): self
+    public function removeListCard(ListCard $listCard): self
     {
-        if ($this->cardMemories->removeElement($cardMemory)) {
+        if ($this->listCards->removeElement($listCard)) {
             // set the owning side to null (unless already changed)
-            if ($cardMemory->getCardId() === $this) {
-                $cardMemory->setCardId(null);
+            if ($listCard->getCardId() === $this) {
+                $listCard->setCardId(null);
             }
         }
 

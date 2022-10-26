@@ -62,7 +62,7 @@ class ListMemoriesController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/list-memory/all', name: 'read_memories_all', methods: ['GET'], requirements: ["id" => "^[0-9]+$"])]
+    #[Route('/list-memory', name: 'read_memories_all', methods: ['GET'], requirements: ["id" => "^[0-9]+$"])]
     #[IsGranted("ROLE_USER")]
     public function getAllList(ManagerRegistry $doctrine): JsonResponse
     {

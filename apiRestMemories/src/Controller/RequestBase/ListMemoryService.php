@@ -85,7 +85,11 @@ class ListMemoryService
         if (!isset($rqtMemory)) {
             return ['error' => self::ERROR_ID];
         }
-        return [self::NAME_TO_SEND => $rqtMemory->getName(), self::DESCRIPTION_TO_SEND => $rqtMemory->getDescription()];
+        return [
+            "id" => $rqtMemory->getID(),
+            self::NAME_TO_SEND => $rqtMemory->getName(),
+            self::DESCRIPTION_TO_SEND => $rqtMemory->getDescription()
+        ];
     }
 
     public function getAllList(ManagerRegistry $doctrine, User $user): array
