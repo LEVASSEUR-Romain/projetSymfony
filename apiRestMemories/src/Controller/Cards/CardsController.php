@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class CardsController extends AbstractController
 {
+    // ToDO add card with id list
     private $postError;
     private $serviceRequest;
     public function __construct()
@@ -32,6 +33,21 @@ class CardsController extends AbstractController
 
         $user = $this->getUser();
         $reponse = $this->serviceRequest->addCard($request, $doctrine, $validator, $user);
+        return new JsonResponse($reponse);
+    }
+
+
+    #[Route('{idList}/card', name: 'add_card', methods: ['POST'], requirements: ["idList" => "^[0-9]+$"])]
+    #[IsGranted("ROLE_USER")]
+    public function addCardWithList(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator, int $idList): JsonResponse
+    {
+        $error = $this->postError->postError($request, $this->serviceRequest->getArrayObligation());
+        if (count($error) !== 0) {
+            return new JsonResponse($error);
+        }
+
+        $user = $this->getUser();
+        $reponse = $this->serviceRequest->addCardAndList($request, $doctrine, $validator, $user, $idList);
         return new JsonResponse($reponse);
     }
 

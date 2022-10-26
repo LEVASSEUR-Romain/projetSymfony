@@ -14,6 +14,7 @@ class ListMemoryService
 {
     const NAME_TO_SEND = "nom";
     const DESCRIPTION_TO_SEND = "description";
+    const KEY_CARD_ID = "Card_id";
     const ERROR_ID_USER = "l'id de la listMemory n'appartient pas au user ou l'id n'existe plus";
     const ERROR_ID = "l'id correspondant n'existe pas";
     const ERROR_USER = "l'utilisateur n'a pas de liste";
@@ -85,26 +86,38 @@ class ListMemoryService
         if (!isset($rqtMemory)) {
             return ['error' => self::ERROR_ID];
         }
+        $links = $rqtMemory->getListCards()->getValues();
+        $listId = [];
+        foreach ($links as &$value) {
+            $listId[] = $value->getCardId()->getId();
+        }
         return [
             "id" => $rqtMemory->getID(),
             self::NAME_TO_SEND => $rqtMemory->getName(),
-            self::DESCRIPTION_TO_SEND => $rqtMemory->getDescription()
+            self::DESCRIPTION_TO_SEND => $rqtMemory->getDescription(),
+            self::KEY_CARD_ID => $listId,
         ];
     }
 
     public function getAllList(ManagerRegistry $doctrine, User $user): array
     {
         $repositoryListMemory = $doctrine->getRepository(ListMemory::class);
-        $rqtMemory = $repositoryListMemory->findAll(["user_id" => $user->getId()]);
+        $rqtMemory = $repositoryListMemory->findBy(["user_id" => $user->getId()]);
         if (!isset($rqtMemory)) {
             return ['error' => self::ERROR_USER];
         }
         $return = [];
         foreach ($rqtMemory as &$value) {
+            $links = $value->getListCards()->getValues();
+            $listId = [];
+            foreach ($links as &$link) {
+                $listId[] = $link->getCardId()->getId();
+            }
             $return[] = [
                 "id" => $value->getId(),
                 self::NAME_TO_SEND => $value->getName(),
-                self::DESCRIPTION_TO_SEND => $value->getDescription()
+                self::DESCRIPTION_TO_SEND => $value->getDescription(),
+                self::KEY_CARD_ID => $listId,
             ];
         }
         return $return;
