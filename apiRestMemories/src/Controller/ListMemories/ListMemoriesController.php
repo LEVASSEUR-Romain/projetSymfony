@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-
+use OpenApi\Attributes as OA;
 
 class ListMemoriesController extends AbstractController
 {
@@ -24,21 +24,23 @@ class ListMemoriesController extends AbstractController
         $this->serviceRequest = new ListMemoryService;
     }
 
-    #[Route('/list-memory', name: 'add_memories', methods: ['POST'])]
+    #[Route('api/list-memory', name: 'add_memories', methods: ['POST'])]
     #[IsGranted("ROLE_USER")]
+    #[OA\Tag(name: 'List_Card')]
     public function addList(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator): JsonResponse
     {
         $error = $this->postError->postError($request, $this->serviceRequest->getArrayObligation());
         if (count($error) !== 0) {
-            return new JsonResponse($error);
+            return new JsonResponse($error, 400);
         }
         $user = $this->getUser();
         $reponse = $this->serviceRequest->addList($request, $doctrine, $validator, $user);
         return new JsonResponse($reponse);
     }
 
-    #[Route('/list-memory/{id}', name: 'delete_memories', methods: ['DELETE'], requirements: ["id" => "^[0-9]+$"])]
+    #[Route('api/list-memory/{id}', name: 'delete_memories', methods: ['DELETE'], requirements: ["id" => "^[0-9]+$"])]
     #[IsGranted("ROLE_USER")]
+    #[OA\Tag(name: 'List_Card')]
     public function removeList(ManagerRegistry $doctrine, int $id): JsonResponse
     {
         $user = $this->getUser();
@@ -46,8 +48,9 @@ class ListMemoriesController extends AbstractController
         return new JsonResponse($reponse);
     }
 
-    #[Route('/list-memory/{id}', name: 'update_memories', methods: ['PUT'], requirements: ["id" => "^[0-9]+$"])]
+    #[Route('api/list-memory/{id}', name: 'update_memories', methods: ['PUT'], requirements: ["id" => "^[0-9]+$"])]
     #[IsGranted("ROLE_USER")]
+    #[OA\Tag(name: 'List_Card')]
     public function updateList(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator, int $id): JsonResponse
     {
         $user = $this->getUser();
@@ -55,15 +58,17 @@ class ListMemoriesController extends AbstractController
         return new JsonResponse($response);
     }
 
-    #[Route('/list-memory/{id}', name: 'read_memories', methods: ['GET'], requirements: ["id" => "^[0-9]+$"])]
+    #[Route('api/list-memory/{id}', name: 'read_memories', methods: ['GET'], requirements: ["id" => "^[0-9]+$"])]
+    #[OA\Tag(name: 'List_Card')]
     public function getList(ManagerRegistry $doctrine, int $id): JsonResponse
     {
         $response = $this->serviceRequest->getList($doctrine, $id);
         return new JsonResponse($response);
     }
 
-    #[Route('/list-memory', name: 'read_memories_all', methods: ['GET'], requirements: ["id" => "^[0-9]+$"])]
+    #[Route('api/list-memory', name: 'read_memories_all', methods: ['GET'], requirements: ["id" => "^[0-9]+$"])]
     #[IsGranted("ROLE_USER")]
+    #[OA\Tag(name: 'List_Card')]
     public function getAllList(ManagerRegistry $doctrine): JsonResponse
     {
         $user = $this->getUser();

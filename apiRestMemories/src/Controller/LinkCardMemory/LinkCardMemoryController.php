@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Controller\RequestBase\LinkCardMemoryService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use OpenApi\Attributes as OA;
 
 class LinkCardMemoryController extends AbstractController
 {
@@ -17,12 +18,13 @@ class LinkCardMemoryController extends AbstractController
         $this->serviceRequest = new LinkCardMemoryService;
     }
     #[Route(
-        '/link-list-card/{idList}/{idCard}',
+        'api/link-list-card/{idList}/{idCard}',
         name: 'add_link',
         methods: ['GET', 'POST'],
         requirements: ["idList" => "^[0-9]+$", "idCard" => "^[0-9]+$"]
     )]
     #[IsGranted("ROLE_USER")]
+    #[OA\Tag(name: 'Link_List_Card')]
     public function addToLink(ManagerRegistry $doctrine, int $idList, int $idCard): JsonResponse
     {
         $user = $this->getUser();
@@ -31,12 +33,13 @@ class LinkCardMemoryController extends AbstractController
     }
 
     #[Route(
-        '/link-list-card/{idList}/{idCard}',
+        'api/link-list-card/{idList}/{idCard}',
         name: 'remove_link',
         methods: ['DELETE'],
         requirements: ["idList" => "^[0-9]+$", "idCard" => "^[0-9]+$"]
     )]
     #[IsGranted("ROLE_USER")]
+    #[OA\Tag(name: 'Link_List_Card')]
     public function removeToLink(ManagerRegistry $doctrine, int $idList, int $idCard): JsonResponse
     {
         $user = $this->getUser();

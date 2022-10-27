@@ -33,14 +33,15 @@ class CardsService
         return [self::FRONT_TO_SEND, self::BACK_TO_SEND];
     }
 
-    private function isUserHasList($idList, $user, $doctrine): bool
+    private function isUserHasList(int $idList, $user): bool
     {
-        $repositoryListMemory = $doctrine->getRepository(ListMemory::class);
-        $rqtMemory = $repositoryListMemory->findOneBy(['id' => $idList, "user_id" => $user->getId()]);
-        if (!isset($rqtMemory)) {
-            return false;
-        }
-        return true;
+        $list = $user->getListMemories();
+        $existe = $list->exists(
+            function ($key, $value) use ($idList) {
+                return $value->getId() === $idList;
+            }
+        );
+        return $existe;
     }
 
     public function addCard(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator, User $user)
@@ -65,7 +66,7 @@ class CardsService
 
     public function addCardAndList(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator, User $user, int $idList)
     {
-        if ($this->isUserHasList($idList, $user, $doctrine)) {
+        if ($this->isUserHasList($idList, $user)) {
             $addCardRqt = $this->addCard($request, $doctrine, $validator, $user);
             if (isset($addCardRqt["statut"])) {
                 // ici => on a vérifier si l'utilisateur a la list et on a push

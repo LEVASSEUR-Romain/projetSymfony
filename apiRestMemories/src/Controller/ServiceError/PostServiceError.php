@@ -8,12 +8,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PostServiceError
 {
-
+    const ERROR_EMPTY_POST = "aucune information envoyé";
+    const ERROR_ANY_EMPTY_POST = "il manque des informations dans le post : ";
     public function postError(Request $request, $arrayNeed): array
     {
         if ($request->getMethod() !== 'POST') {
             $arrayErrors = [];
-            $arrayErrors['error'] = "aucune information envoyé";
+            $arrayErrors['error'] = self::ERROR_EMPTY_POST;
             return $arrayErrors;
         } else {
             $errors = "";
@@ -23,7 +24,7 @@ class PostServiceError
                 }
             }
             if ($errors !== "") {
-                $arrayErrors['error'] = "il manque des informations dans le post : " . $errors;
+                $arrayErrors['error'] = self::ERROR_ANY_EMPTY_POST . $errors;
                 return $arrayErrors;
             }
         }

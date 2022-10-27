@@ -12,6 +12,7 @@ use App\Controller\ServiceError\PostServiceError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use OpenApi\Attributes as OA;
 
 class LoginController extends AbstractController
 {
@@ -21,16 +22,17 @@ class LoginController extends AbstractController
         $this->passwordHasher = $passwordHasher;
     }
 
-    #[Route('/login', name: 'login_in', methods: ['GET', 'POST'])]
+    #[Route('api/login', name: 'login_in', methods: ['GET', 'POST'])]
+    #[OA\Tag(name: 'Login')]
     public function index(Request $request): JsonResponse
     {
         //var_dump($this->getUser());
         $this->request = $request;
         $error = $this->tchekError();
-        if (count($error) === 0) {
-            $error['statut'] = "ok";
+        if (count($error) !== 0) {
+            new JsonResponse($error, 400);
         }
-        return new JsonResponse($error);
+        return new JsonResponse(["statut" => "ok"]);
     }
 
     public function tchekError(): array
@@ -52,6 +54,7 @@ class LoginController extends AbstractController
         return [];
     }
     #[Route(path: '/logout', name: 'app_logout')]
+    #[OA\Tag(name: 'Login')]
     public function logout(): JsonResponse
     {
 

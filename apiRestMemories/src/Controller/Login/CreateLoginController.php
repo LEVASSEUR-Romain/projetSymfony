@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use OpenApi\Attributes as OA;
 
 
 class CreateLoginController extends AbstractController
@@ -24,13 +25,14 @@ class CreateLoginController extends AbstractController
         $this->validator = $validator;
         $this->passwordHasher = $passwordHasher;
     }
-    #[Route('/createlogin', name: 'createlogin', methods: ['GET', 'POST'])]
+    #[Route('api/createlogin', name: 'createlogin', methods: ['POST'])]
+    #[OA\Tag(name: 'Login')]
     public function index(Request $request): JsonResponse
     {
         $this->request = $request;
         $error = $this->tchekError();
         if (count($error) !== 0) {
-            return new JsonResponse($error);
+            return new JsonResponse($error, 400);
         }
         return $this->noError();
     }
