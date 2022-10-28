@@ -41,7 +41,14 @@ class CardsController extends AbstractController
                 description: "statut ok",
                 content: new OA\MediaType(
                     mediaType: "application/json",
-                    example: ['statut' => 'ok'],
+                    example: ['statut' => 'ok', "id" => "type int , l'id de la carte crée"],
+                ),
+            ),
+            new OA\Response(
+                response: 406,
+                description: "Error validation",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
                 ),
             ),
             new OA\Response(
@@ -71,6 +78,9 @@ class CardsController extends AbstractController
 
         $user = $this->getUser();
         $reponse = $this->serviceRequest->addCard($request, $doctrine, $validator, $user);
+        if (isset($response['error'])) {
+            return new JsonResponse($response, 406);
+        }
         return new JsonResponse($reponse);
     }
 
@@ -93,9 +103,10 @@ class CardsController extends AbstractController
                 description: "statut ok",
                 content: new OA\MediaType(
                     mediaType: "application/json",
-                    example: ['statut' => 'ok'],
+                    example: ['statut' => 'ok', "id" => "type int , l'id de la carte crée"],
                 ),
             ),
+
             new OA\Response(
                 response: 400,
                 description: "Post incomplet",
@@ -103,6 +114,13 @@ class CardsController extends AbstractController
                     mediaType: "application/json",
                     example: ["error" => PostServiceError::ERROR_EMPTY_POST],
                 )
+            ),
+            new OA\Response(
+                response: 406,
+                description: "Error validation",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                ),
             ),
             new OA\Response(
                 response: 401,
@@ -123,6 +141,9 @@ class CardsController extends AbstractController
 
         $user = $this->getUser();
         $reponse = $this->serviceRequest->addCardAndList($request, $doctrine, $validator, $user, $idList);
+        if (isset($response['error'])) {
+            return new JsonResponse($response, 406);
+        }
         return new JsonResponse($reponse);
     }
 
@@ -175,22 +196,20 @@ class CardsController extends AbstractController
     #[IsGranted("ROLE_USER")]
     #[OA\Tag(name: 'Card')]
     #[OA\Put(
+        description: "modifier une carte",
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'int')),
             new OA\RequestBody(required: true, content: new OA\JsonContent(example: [
-                "id" => 1,
-                CardsService::FRONT_TO_SEND => 'recto content',
-                CardsService::BACK_TO_SEND => 'verso content',
-                CardsService::FRONT_PERSO_TO_SEND => 'recto perso content',
-                CardsService::BACK_PERSO_TO_SEND => 'verso perso content',
-                CardsService::KEYS_LIST_ID => "array d'id de liste qui contient cette carte",
-                CardsService::KEYS_LIST_NAME => "array de nom de list qui contient cette carte"
+                CardsService::FRONT_TO_SEND => 'recto content (optionnelle)',
+                CardsService::BACK_TO_SEND => 'verso content (optionnelle)',
+                CardsService::FRONT_PERSO_TO_SEND => 'recto perso content (optionnelle)',
+                CardsService::BACK_PERSO_TO_SEND => 'verso perso content (optionnelle)',
             ]), description: "envoyer un json dans le body"),
         ],
         responses: [
             new OA\Response(
                 response: 200,
-                description: "Retourne un json avec toutes les informations des cartes que l'utilisateur posséde ou error",
+                description: "Retourne statut ok",
                 content: new OA\MediaType(
                     mediaType: "application/json",
                     example: [

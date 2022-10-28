@@ -20,7 +20,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     // variable constraint
     const MAX_LENGTH_PSEUDO = 25;
     const MIN_LENGTH_PSEUDO = 5;
-    const MAX_LENGTH_PASS = 25;
     const MIN_LENGTH_PASS = 4;
     #[ORM\Id]
     #[ORM\GeneratedValue]

@@ -22,8 +22,43 @@ class LoginController extends AbstractController
         $this->passwordHasher = $passwordHasher;
     }
 
-    #[Route('api/login', name: 'login_in', methods: ['GET', 'POST'])]
+    #[Route('api/login', name: 'login_in', methods: ['POST'])]
     #[OA\Tag(name: 'Login')]
+    #[OA\Post(
+        description: "Connecter un utilisateur",
+        parameters: [
+            new OA\Parameter(
+                name: LoginService::PSEUDO_TO_SEND,
+                in: 'query',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: LoginService::PASSWORD_TO_SEND,
+                in: 'query',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "statut ok",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    example: ['statut' => 'ok'],
+                ),
+            ),
+
+            new OA\Response(
+                response: 400,
+                description: "Error post incomplet ou pseudo existe deja ou autre Erreur",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                )
+            ),
+        ]
+    )]
     public function index(Request $request): JsonResponse
     {
         //var_dump($this->getUser());
@@ -53,12 +88,29 @@ class LoginController extends AbstractController
         }
         return [];
     }
-    #[Route(path: '/logout', name: 'app_logout')]
+    #[Route(path: 'api/login/out', name: 'login_out', methods: ['GET'])]
     #[OA\Tag(name: 'Login')]
+    #[OA\Get(
+        description: "deconnecter un utilisateur",
+        parameters: [],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "statut ok",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    example: ['statut' => 'ok'],
+                ),
+            ),
+        ]
+    )]
     public function logout(): JsonResponse
     {
-
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+    #[Route(path: '/approuve', name: 'approuve')]
+    public function approuve(): JsonResponse
+    {
         return new JsonResponse(["statut" => "ok"]);
     }
 }
