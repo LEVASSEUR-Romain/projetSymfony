@@ -61,7 +61,6 @@ class LoginController extends AbstractController
     )]
     public function index(Request $request): JsonResponse
     {
-        //var_dump($this->getUser());
         $this->request = $request;
         $error = $this->tchekError();
         if (count($error) !== 0) {
@@ -79,12 +78,11 @@ class LoginController extends AbstractController
             if (count($postError) !== 0) {
                 return $postError;
             }
-
-
+            /* 
             $errorLogin = $serviceLogin->loginIn($this->request, $this->doctrine, $this->passwordHasher);
             if ($errorLogin !== true) {
                 return $errorLogin;
-            }
+            } */
         }
         return [];
     }

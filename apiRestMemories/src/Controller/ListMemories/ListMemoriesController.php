@@ -173,7 +173,8 @@ class ListMemoriesController extends AbstractController
                     mediaType: "application/json",
                     example: ["error" => AccessDeniedListener::ERROR_NOT_CONNECT],
                 )
-            )
+            ),
+
         ]
     )]
     public function updateList(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator, int $id): JsonResponse

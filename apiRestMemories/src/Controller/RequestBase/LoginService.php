@@ -9,8 +9,10 @@ use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Controller\Services\methodDataBase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 use App\Controller\Services\ConstraintViolationService;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 
@@ -21,7 +23,7 @@ class LoginService
     const PASSWORD_TO_SEND = "mdp";
     const ERROR_LOGIN = "le pseudo n'est pas enregistré";
     const ERROR_PASSWORD = "le mot de passe est incorect";
-
+    const ERROR_JSON = "le json envoyer n'est pas dans le bon format";
 
     public function getArrayObligation(): array
     {
@@ -66,5 +68,44 @@ class LoginService
             return $error;
         }
         return true;
+    }
+
+
+    public function logDelete(ManagerRegistry $doctrine, User $user, SessionInterface $session)
+    {
+        $this->container->get('security.token_storage')->setToken(null);
+        //dd($session);
+        methodDataBase::delete($doctrine, $user);
+    }
+
+    public function logUpdate(Request $request, ManagerRegistry $doctrine, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher, User $user)
+    {
+        // traitement du json
+        $rqt = json_decode($request->getContent());
+        if (!isset($rqt)) {
+            return ["erreur" => self::ERROR_JSON];
+        }
+        if (!empty($rqt->{self::MAIL_TO_SEND})) {
+            $user->setMail($rqt->{self::MAIL_TO_SEND});
+        }
+        if (!empty($rqt->{self::PASSWORD_TO_SEND})) {
+            $user->setPlainPassword($rqt->{self::PASSWORD_TO_SEND});
+        }
+        // validate traitement
+        $valid = $validator->validate($user);
+        if (count($valid) > 0) {
+            return ConstraintViolationService::toArray($valid);
+        }
+        // hash Password si besoin
+        if (!empty($rqt->{self::PASSWORD_TO_SEND})) {
+            $hashedPassword =  $passwordHasher->hashPassword(
+                $user,
+                $user->getPlainPassword()
+            );
+            $user->setPassword($hashedPassword);
+        }
+        // push 
+        methodDataBase::push($doctrine, $user);
+        return ["statut" => "ok"];
     }
 }

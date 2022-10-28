@@ -2,9 +2,9 @@
 
 namespace App\Security;
 
-
-
+use App\Controller\RequestBase\LoginService;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
@@ -21,12 +21,12 @@ class UserLoginInAuthenticator extends AbstractAuthenticator
 
     function __construct(ManagerRegistry $doctrine)
     {
-        $this->ListRoute = ['/login'];
+        $this->ListRoute = ['/api/login'];
         $this->doctrine = $doctrine;
     }
     public function supports(Request $request): ?bool
     {
-        if ($request->getMethod() === 'POST' && !empty($request->request->get('mdp')) && !empty($request->request->get('pseudo'))) {
+        if ($request->getMethod() === 'POST' && !empty($request->request->get(LoginService::PASSWORD_TO_SEND)) && !empty($request->request->get(LoginService::PSEUDO_TO_SEND))) {
             for ($i = 0; $i < count($this->ListRoute); $i++) {
                 if ($request->getPathInfo() === $this->ListRoute[$i]) {
                     return true;
@@ -38,8 +38,8 @@ class UserLoginInAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $password = $request->request->get('mdp');
-        $username = $request->request->get('pseudo');
+        $password = $request->request->get(LoginService::PASSWORD_TO_SEND);
+        $username = $request->request->get(LoginService::PSEUDO_TO_SEND);
         //$csrfToken = $request->request->get('csrf_token');
         return new Passport(
             new UserBadge($username),
@@ -56,6 +56,6 @@ class UserLoginInAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        return null;
+        return new JsonResponse(['error' => "pseudo ou mot de passe incorect"], 400);
     }
 }
